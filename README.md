@@ -43,8 +43,12 @@ No build step, no install, no `node_modules` — `bun --hot index.html` serves
   text → black halo, dark text → white halo) so it stays readable on any
   marker color, at any scale.
 - **Persistence**: all state (mode, root, root 2, layers, positions, scales,
-  names, active selection) is saved to `localStorage` under `frets:v1` on
-  every change and restored on load.
+  names, active selection) is saved to `localStorage` under `frets:v1` AND
+  encoded into the URL hash on every change. On load, the URL hash wins so
+  shared links override whatever was last saved locally.
+- **Copy link** in the top bar copies a self-contained shareable URL. Paste
+  it on another machine and the full diagram loads — no server, no account,
+  no sync.
 
 ## Layout
 
@@ -66,6 +70,7 @@ In the browser DevTools console:
 
 ```js
 localStorage.removeItem("frets:v1");
+location.hash = "";
 ```
 
 Then refresh.

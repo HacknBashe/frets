@@ -116,6 +116,32 @@ body {
   font-family: inherit;
 }
 
+.copy-link {
+  margin-left: auto;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.copy-link:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.copy-link.copied {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: var(--bg);
+}
+
 main {
   display: grid;
   grid-template-columns: 1fr;

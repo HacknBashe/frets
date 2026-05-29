@@ -114,52 +114,94 @@ interface PersistedState {
   layers: PersistedLayer[];
 }
 
-function save() {
+function snapshotState(): PersistedState {
+  return {
+    mode,
+    root,
+    root2,
+    activeLayerId,
+    layers: layers.map((l) => ({
+      id: l.id,
+      name: l.name,
+      color: l.color,
+      symbol: l.symbol,
+      visible: l.visible,
+      scale: l.scale,
+      positions: [...l.positions],
+    })),
+  };
+}
+
+function applyState(state: PersistedState) {
+  mode = state.mode === "note" ? "note" : "degree";
+  root = typeof state.root === "string" ? state.root : "A";
+  root2 = typeof state.root2 === "string" ? state.root2 : null;
+  activeLayerId = state.activeLayerId ?? null;
+  layers.length = 0;
+  for (const l of state.layers ?? []) {
+    const symbol =
+      (l.symbol as string) === "hexagon" ? "moon" : (l.symbol as Symbol);
+    layers.push({
+      id: l.id,
+      name: l.name,
+      color: l.color,
+      symbol,
+      visible: l.visible !== false,
+      scale: typeof l.scale === "number" ? l.scale : 1,
+      positions: new Set(l.positions ?? []),
+    });
+  }
+}
+
+function encodeHash(state: PersistedState): string {
+  return encodeURIComponent(JSON.stringify(state));
+}
+
+function decodeHash(hash: string): PersistedState | null {
   try {
-    const state: PersistedState = {
-      mode,
-      root,
-      root2,
-      activeLayerId,
-      layers: layers.map((l) => ({
-        id: l.id,
-        name: l.name,
-        color: l.color,
-        symbol: l.symbol,
-        visible: l.visible,
-        scale: l.scale,
-        positions: [...l.positions],
-      })),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const raw = hash.startsWith("#") ? hash.slice(1) : hash;
+    if (!raw) return null;
+    return JSON.parse(decodeURIComponent(raw)) as PersistedState;
+  } catch {
+    return null;
+  }
+}
+
+function save() {
+  const state = snapshotState();
+  const json = JSON.stringify(state);
+  try {
+    localStorage.setItem(STORAGE_KEY, json);
   } catch {
     // ignore quota / privacy mode errors
+  }
+  try {
+    const hash = "#" + encodeHash(state);
+    // replaceState so we don't pollute browser history on every mutation
+    history.replaceState(null, "", location.pathname + location.search + hash);
+  } catch {
+    // ignore URL too long / sandbox errors
   }
 }
 
 function load(): boolean {
+  // URL hash wins over localStorage: lets you share a link that overrides
+  // whatever was last saved locally.
+  const hashState = decodeHash(location.hash);
+  if (hashState) {
+    applyState(hashState);
+    // Also seed localStorage so reopening without the hash keeps the state.
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshotState()));
+    } catch {
+      /* ignore */
+    }
+    return layers.length > 0;
+  }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
-    const state = JSON.parse(raw) as PersistedState;
-    mode = state.mode === "note" ? "note" : "degree";
-    root = typeof state.root === "string" ? state.root : "A";
-    root2 = typeof state.root2 === "string" ? state.root2 : null;
-    activeLayerId = state.activeLayerId ?? null;
-    layers.length = 0;
-    for (const l of state.layers ?? []) {
-      const symbol =
-        (l.symbol as string) === "hexagon" ? "moon" : (l.symbol as Symbol);
-      layers.push({
-        id: l.id,
-        name: l.name,
-        color: l.color,
-        symbol,
-        visible: l.visible !== false,
-        scale: typeof l.scale === "number" ? l.scale : 1,
-        positions: new Set(l.positions ?? []),
-      });
-    }
+    applyState(JSON.parse(raw) as PersistedState);
     return layers.length > 0;
   } catch {
     return false;
@@ -788,15 +830,50 @@ root2Select.addEventListener("change", () => {
 
 document.getElementById("addLayer")!.addEventListener("click", () => addLayer());
 
-// Boot: restore from localStorage if present, otherwise seed one starter layer.
-const restored = load();
-if (restored) {
-  // Sync UI controls to restored state
+const copyLinkBtn = document.getElementById("copyLink") as HTMLButtonElement;
+copyLinkBtn.addEventListener("click", async () => {
+  // save() updates the hash; grab the current URL right after to be safe.
+  save();
+  const url = location.href;
+  try {
+    await navigator.clipboard.writeText(url);
+    copyLinkBtn.classList.add("copied");
+    copyLinkBtn.textContent = "Copied!";
+    setTimeout(() => {
+      copyLinkBtn.classList.remove("copied");
+      copyLinkBtn.textContent = "Copy link";
+    }, 1500);
+  } catch {
+    // Clipboard API can fail in some contexts (e.g. http on non-localhost).
+    // Surface the URL so the user can copy manually.
+    prompt("Copy this link:", url);
+  }
+});
+
+// Sync UI controls to current state (call after load() or any external reload).
+function syncControls() {
   rootSelect.value = root;
   root2Select.value = root2 ?? "";
   document.querySelectorAll("#viewToggle button").forEach((b) => {
     b.classList.toggle("active", (b as HTMLElement).dataset.mode === mode);
   });
+}
+
+// If the user edits the hash manually (e.g. pastes a different link in the
+// address bar), reload state from it.
+window.addEventListener("hashchange", () => {
+  const hashState = decodeHash(location.hash);
+  if (hashState) {
+    applyState(hashState);
+    syncControls();
+    render();
+  }
+});
+
+// Boot: restore from URL hash, falling back to localStorage; otherwise seed.
+const restored = load();
+if (restored) {
+  syncControls();
   render();
 } else {
   addLayer();
