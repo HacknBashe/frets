@@ -1,0 +1,380 @@
+/* Theme: Tokyo Night Moon, sourced from ~/.config/dots/modules/theme.nix */
+:root {
+  color-scheme: dark;
+
+  /* Base */
+  --bg: #1a1b26; /* background (Night) */
+  --bg-dark: #16161e;
+  --panel: #1e2030; /* bgStatusline */
+  --panel-2: #2f334d; /* bgHighlight */
+  --border: #3b4261; /* fgGutter */
+  --text: #c8d3f5; /* foreground */
+  --muted: #636da6; /* comment */
+  --dim: #545c7e; /* dark3 */
+
+  /* Semantic */
+  --accent: #65bcff; /* blue1 */
+  --accent-2: #82aaff; /* blue */
+  --danger: #ff757f; /* red */
+  --warn: #ffc777; /* yellow */
+  --ok: #c3e88d; /* green */
+
+  /* Fretboard surface */
+  --fret-surface: #1e2030;
+  --fret-surface-edge: #16161e;
+  --fret-wire: #737aa2; /* dark5 */
+  --nut: #c8d3f5;
+  --string: #c8d3f5;
+  --inlay: #3b4261;
+
+  font-family: "SauceCodePro Nerd Font Mono", ui-monospace, SFMono-Regular,
+    Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+}
+
+#app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.topbar h1 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.view-toggle button {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.view-toggle button:hover {
+  color: var(--text);
+}
+
+.view-toggle button.active {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+}
+
+.root-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.root-picker select {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.fretboard-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+#fretboard {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 900px;
+}
+
+.layers {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.layers-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.layers-header h2 {
+  font-size: 12px;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+}
+
+#addLayer {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#addLayer:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+#layerList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.layer {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.layer.active {
+  border-color: var(--accent);
+  background: var(--panel-2);
+}
+
+.layer .preview {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.layer .name {
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-family: inherit;
+  font-size: 13px;
+  width: 100%;
+  min-width: 0;
+  outline: none;
+  cursor: text;
+}
+
+.layer .name:hover {
+  border-color: var(--border);
+}
+
+.layer .name:focus {
+  border-color: var(--accent);
+  background: var(--bg-dark);
+}
+
+.layer .controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.layer .controls > .group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.layer .controls .group-label {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.swatches {
+  display: flex;
+  gap: 4px;
+}
+
+.swatches .swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  padding: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
+
+.swatches .swatch .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: block;
+}
+
+.swatches .swatch.selected {
+  border-color: var(--text);
+  box-shadow: 0 0 0 1px var(--text);
+}
+
+.symbol-swatches {
+  display: flex;
+  gap: 4px;
+}
+
+.symbol-swatches .sym {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  padding: 0;
+}
+
+.symbol-swatches .sym:hover {
+  color: var(--text);
+}
+
+.symbol-swatches .sym.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.layer .actions {
+  display: flex;
+  gap: 6px;
+}
+
+.layer .icon-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.layer .icon-btn:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+
+.layer .icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.layer .icon-btn:disabled:hover {
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+.layer .icon-btn.arrow {
+  padding: 4px 6px;
+  min-width: 24px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.layer .icon-btn.danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* SVG fretboard */
+.fret-cell {
+  cursor: pointer;
+}
+
+.fret-cell:hover .hover-indicator {
+  opacity: 0.25;
+}
+
+.fret-marker text {
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
+  font-family: inherit;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 10px 12px;
+  font-style: italic;
+}

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Frets</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <h1>Frets</h1>
+        <div class="view-toggle" id="viewToggle">
+          <button data-mode="degree" class="active">Scale degree</button>
+          <button data-mode="note">Note</button>
+        </div>
+        <label class="root-picker">
+          Root
+          <select id="rootSelect">
+            <option>C</option>
+            <option>C#</option>
+            <option>D</option>
+            <option>D#</option>
+            <option>E</option>
+            <option>F</option>
+            <option>F#</option>
+            <option>G</option>
+            <option>G#</option>
+            <option selected>A</option>
+            <option>A#</option>
+            <option>B</option>
+          </select>
+        </label>
+        <label class="root-picker">
+          Root 2
+          <select id="root2Select">
+            <option value="">— none —</option>
+            <option>C</option>
+            <option>C#</option>
+            <option>D</option>
+            <option>D#</option>
+            <option>E</option>
+            <option>F</option>
+            <option>F#</option>
+            <option>G</option>
+            <option>G#</option>
+            <option>A</option>
+            <option>A#</option>
+            <option>B</option>
+          </select>
+        </label>
+      </header>
+
+      <main>
+        <div class="fretboard-wrap">
+          <svg id="fretboard" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+
+        <section class="layers">
+          <div class="layers-header">
+            <h2>Layers</h2>
+            <button id="addLayer">+ Add layer</button>
+          </div>
+          <ul id="layerList"></ul>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.ts"></script>
+  </body>
+</html>
